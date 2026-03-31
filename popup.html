@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Peak Monitor</title>
+  <style>
+    :root {
+      --claude-orange: #C15F3C;
+      --claude-orange-light: #DA7756;
+      --bg: #F8F5F0;
+      --text: #2C2C2C;
+      --text-light: #6B6B6B;
+      --success: #4CAF7A;
+      --alert: #E76F51;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1F1C18;
+        --text: #F4F1EA;
+        --text-light: #A89E8F;
+      }
+    }
+
+    body {
+      width: 290px;
+      margin: 0;
+      padding: 20px 18px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--claude-orange);
+    }
+
+    .status {
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 14px 22px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 15px rgba(193, 95, 60, 0.15);
+      transition: all 0.4s ease;
+    }
+
+    .peak {
+      background: linear-gradient(135deg, var(--alert), #E76F51);
+      color: white;
+      box-shadow: 0 6px 20px rgba(231, 111, 81, 0.3);
+      animation: gentlePulse 2.5s infinite;
+    }
+
+    .normal {
+      background: linear-gradient(135deg, var(--success), #66D19F);
+      color: white;
+    }
+
+    #timer {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--claude-orange);
+      margin: 12px 0 18px 0;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .progress-container {
+      height: 7px;
+      background: #EDE6DB;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 16px 0;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--claude-orange), var(--claude-orange-light));
+      width: 0%;
+      transition: width 1s linear;
+      border-radius: 9999px;
+    }
+
+    .message {
+      font-size: 0.96rem;
+      line-height: 1.55;
+      color: var(--text-light);
+      background: rgba(193, 95, 60, 0.06);
+      padding: 14px 16px;
+      border-radius: 12px;
+      border-left: 4px solid var(--claude-orange);
+      text-align: left;
+      margin: 10px 0;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: #9A8F7E;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.015); }
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #D4C9B5, transparent);
+      margin: 18px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span style="font-size:1.6rem;">🪨</span>
+    Claude Peak Monitor
+  </div>
+
+  <div id="status-box" class="status">Chargement...</div>
+  <div id="timer">00h 00m 00s</div>
+
+  <div class="progress-container" id="progress-container" style="display: none;">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <hr>
+
+  <div class="footer" id="footer">
+    Heures de pointe • 13h – 19h GMT<br>
+    Ralentissements & bugs plus fréquents
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
