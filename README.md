@@ -1,7 +1,8 @@
 <p align="center">
-  ![Claude Peak Monitor](https://readme-typing-svg.demolab.com?font=Fira+Code&size=28&pause=1000&color=C15F3C&background=000000&center=true&vCenter=true&width=700&lines=Claude+Peak+Monitor;🪨+Real-      time+peak+hour+alerts;Never+miss+the+best+time+to+use+Claude.ai)
-
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=26&duration=3000&pause=1200&color=C15F3C&background=000000&center=true&vCenter=true&multiline=true&repeat=true&width=720&height=120&lines=Claude+Peak+Monitor;🪨+Real-time+peak+hour+alerts;Never+miss+the+best+time+to+use+Claude.ai" alt="Claude Peak Monitor" />
 </p>
+
+
 ---
 
 <p align="center">
