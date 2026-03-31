@@ -4,59 +4,70 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claude Peak Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset ─────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Tokens ────────────────────────────────────────────────── */
     :root {
-      --bg:         #0D0B09;
-      --bg-card:    #151210;
-      --bg-alt:     #1C1814;
-      --border:     rgba(255, 255, 255, 0.07);
-      --text:       #F0E8DC;
-      --muted:      #6E6358;
-      --accent:     #E07B3C;
-      --peak:       #FF5230;
-      --peak-glow:  rgba(255, 82, 48, 0.22);
-      --peak-dim:   rgba(255, 82, 48, 0.1);
-      --calm:       #4ABF7E;
-      --calm-glow:  rgba(74, 191, 126, 0.18);
-      --calm-dim:   rgba(74, 191, 126, 0.08);
-      --mono: 'Menlo', 'Monaco', 'SF Mono', 'Fira Code', 'Courier New', monospace;
-      --sans: 'Helvetica Neue', 'Arial', sans-serif;
+      --bg:          #FBF5ED;
+      --bg-card:     #FFFFFF;
+      --bg-alt:      #FFF1E0;
+      --border:      rgba(195, 105, 30, 0.14);
+      --border-card: rgba(195, 105, 30, 0.18);
+      --text:        #2C1A08;
+      --text-soft:   #5C3D1E;
+      --muted:       #A87040;
+      --accent:      #D4601A;
+      --peak:        #C24A0A;
+      --peak-dim:    rgba(194, 74, 10, 0.09);
+      --calm:        #4D7830;
+      --calm-dim:    rgba(77, 120, 48, 0.09);
+      --shadow-card: 0 3px 20px rgba(180, 90, 10, 0.09), 0 1px 4px rgba(180, 90, 10, 0.06);
+      --shadow-soft: 0 2px 12px rgba(180, 100, 20, 0.08), 0 1px 3px rgba(180, 100, 20, 0.05);
+      --mono: 'JetBrains Mono', 'Menlo', 'Courier New', monospace;
+      --serif: 'Lora', Georgia, serif;
     }
 
-    /* ── Base ──────────────────────────────────────────────────── */
     body {
       width: 308px;
       background: var(--bg);
       color: var(--text);
-      font-family: var(--sans);
+      font-family: var(--serif);
       overflow: hidden;
     }
 
-    /* Subtle noise grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 240% 150% at 50% -10%, rgba(255, 175, 70, 0.20) 0%, transparent 55%),
+        radial-gradient(ellipse 180% 120% at 0% 80%,   rgba(255, 135, 45, 0.11) 0%, transparent 55%),
+        radial-gradient(ellipse 150% 100% at 100% 100%,rgba(240, 155, 70, 0.09) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
     body::after {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
-      background-size: 200px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.020'/%3E%3C/svg%3E");
+      background-size: 180px;
       pointer-events: none;
-      z-index: 100;
+      z-index: 0;
     }
 
     .wrap {
       position: relative;
       z-index: 1;
-      padding: 15px 15px 13px;
+      padding: 14px 14px 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
     }
 
-    /* ── Header ────────────────────────────────────────────────── */
     .header {
       display: flex;
       align-items: center;
@@ -66,80 +77,78 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
     }
 
     .logo-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 7px;
-      background: rgba(224, 123, 60, 0.1);
-      border: 1px solid rgba(224, 123, 60, 0.28);
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #FFD090 0%, #F08030 100%);
+      border: 1px solid rgba(195, 105, 30, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 13px;
       line-height: 1;
+      box-shadow: 0 2px 8px rgba(200, 100, 20, 0.22);
     }
 
     .logo-name {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-family: var(--serif);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text-soft);
     }
 
     .badge-unofficial {
       font-family: var(--mono);
-      font-size: 8.5px;
+      font-size: 8px;
       letter-spacing: 0.06em;
       color: var(--muted);
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(195, 105, 30, 0.07);
       border: 1px solid var(--border);
-      padding: 2px 7px;
-      border-radius: 4px;
-      opacity: 0.7;
+      padding: 2px 8px;
+      border-radius: 99px;
     }
 
-    /* ── Weekend banner ────────────────────────────────────────── */
     .weekend-banner {
       background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 16px 14px;
       text-align: center;
       font-family: var(--mono);
       font-size: 11px;
       color: var(--muted);
-      letter-spacing: 0.05em;
-      line-height: 1.7;
+      letter-spacing: 0.04em;
+      line-height: 1.8;
+      box-shadow: var(--shadow-card);
     }
 
-    /* ── Status card ───────────────────────────────────────────── */
     .status-card {
       background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
       padding: 13px 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 11px;
+      box-shadow: var(--shadow-card);
       transition: border-color 0.5s ease, box-shadow 0.5s ease;
     }
 
     .status-card.peak {
-      border-color: rgba(255, 82, 48, 0.22);
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,82,48,0.06);
+      border-color: rgba(194, 74, 10, 0.24);
+      box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 160, 80, 0.14);
     }
 
     .status-card.calm {
-      border-color: rgba(74, 191, 126, 0.18);
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.3), inset 0 1px 0 rgba(74,191,126,0.05);
+      border-color: rgba(77, 120, 48, 0.22);
+      box-shadow: var(--shadow-card), inset 0 1px 0 rgba(100, 160, 70, 0.08);
     }
 
-    /* ── Status row ────────────────────────────────────────────── */
     .status-row {
       display: flex;
       align-items: center;
@@ -150,12 +159,12 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 11px;
-      border-radius: 20px;
+      padding: 4px 11px 4px 8px;
+      border-radius: 99px;
       font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
       text-transform: uppercase;
       transition: all 0.45s ease;
     }
@@ -163,13 +172,13 @@
     .status-pill.peak {
       background: var(--peak-dim);
       color: var(--peak);
-      border: 1px solid rgba(255, 82, 48, 0.28);
+      border: 1px solid rgba(194, 74, 10, 0.22);
     }
 
     .status-pill.calm {
       background: var(--calm-dim);
       color: var(--calm);
-      border: 1px solid rgba(74, 191, 126, 0.22);
+      border: 1px solid rgba(77, 120, 48, 0.22);
     }
 
     .status-dot {
@@ -181,59 +190,64 @@
 
     .status-pill.peak .status-dot {
       background: var(--peak);
-      box-shadow: 0 0 5px var(--peak);
-      animation: dot-blink 1.6s ease-in-out infinite;
+      box-shadow: 0 0 5px rgba(194, 74, 10, 0.50);
+      animation: dot-blink 1.8s ease-in-out infinite;
     }
 
     .status-pill.calm .status-dot {
       background: var(--calm);
-      box-shadow: 0 0 5px var(--calm);
+      box-shadow: 0 0 5px rgba(77, 120, 48, 0.45);
     }
 
     @keyframes dot-blink {
       0%, 100% { opacity: 1; }
-      50%       { opacity: 0.25; }
+      50%       { opacity: 0.2; }
     }
 
     .utc-clock {
       font-family: var(--mono);
-      font-size: 10px;
+      font-size: 9.5px;
       color: var(--muted);
       letter-spacing: 0.04em;
     }
 
-    /* ── Timer block ───────────────────────────────────────────── */
     .timer-block {
       text-align: center;
-      padding: 2px 0;
+      padding: 4px 0 2px;
     }
 
     .timer-label {
       font-family: var(--mono);
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 600;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
 
     .timer-value {
       font-family: var(--mono);
-      font-size: 2.35rem;
-      font-weight: 700;
+      font-size: 2.4rem;
+      font-weight: 600;
       letter-spacing: -0.03em;
       line-height: 1;
       transition: color 0.4s ease;
     }
 
-    .timer-value.peak { color: var(--peak); }
-    .timer-value.calm { color: var(--calm); }
+    .timer-value.peak {
+      color: var(--peak);
+      text-shadow: 0 0 20px rgba(194, 74, 10, 0.18);
+    }
 
-    /* ── Progress bar ──────────────────────────────────────────── */
+    .timer-value.calm {
+      color: var(--calm);
+      text-shadow: 0 0 20px rgba(77, 120, 48, 0.16);
+    }
+
     .progress-wrap {
-      height: 3px;
-      background: rgba(255, 255, 255, 0.05);
+      height: 4px;
+      background: rgba(195, 105, 30, 0.10);
       border-radius: 999px;
       overflow: hidden;
     }
@@ -241,60 +255,60 @@
     .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, var(--peak) 0%, #FF8C5A 100%);
+      background: linear-gradient(90deg, var(--peak) 0%, #E87030 55%, #FFB055 100%);
       border-radius: 999px;
       transition: width 1s linear;
     }
 
-    /* ── Info panel ────────────────────────────────────────────── */
     .info-panel {
       background: var(--bg-alt);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border: 1px solid rgba(195, 105, 30, 0.16);
+      border-radius: 11px;
       padding: 11px 13px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
+      box-shadow: var(--shadow-soft);
       transition: border-left-color 0.4s ease;
     }
 
-    .info-panel.peak { border-left: 2px solid rgba(255, 82, 48, 0.45); }
-    .info-panel.calm { border-left: 2px solid rgba(74, 191, 126, 0.38); }
+    .info-panel.peak { border-left: 2.5px solid rgba(194, 74, 10, 0.40); }
+    .info-panel.calm { border-left: 2.5px solid rgba(77, 120, 48, 0.38); }
 
     .info-item {
       display: flex;
       align-items: flex-start;
       gap: 7px;
-      font-size: 11.5px;
-      line-height: 1.5;
-      color: rgba(240, 232, 220, 0.65);
+      font-family: var(--serif);
+      font-size: 11px;
+      line-height: 1.55;
+      color: var(--text-soft);
     }
 
     .info-arrow {
       color: var(--accent);
       flex-shrink: 0;
-      font-size: 10px;
-      margin-top: 2px;
-      opacity: 0.8;
+      font-size: 9px;
+      margin-top: 3px;
+      opacity: 0.70;
     }
 
-    /* ── Footer ────────────────────────────────────────────────── */
     .footer {
-      padding-top: 1px;
+      padding-top: 2px;
       text-align: center;
     }
 
     .footer-text {
       font-family: var(--mono);
-      font-size: 9px;
+      font-size: 8.5px;
       letter-spacing: 0.04em;
       color: var(--muted);
       line-height: 1.6;
-      opacity: 0.75;
+      opacity: 0.70;
     }
 
     .footer-sep {
-      opacity: 0.3;
+      opacity: 0.35;
       margin: 0 4px;
     }
   </style>
@@ -305,7 +319,7 @@
   <!-- Header -->
   <div class="header">
     <div class="logo">
-      <div class="logo-icon">⚡</div>
+      <div class="logo-icon">☁️</div>
       <span class="logo-name">Peak Monitor</span>
     </div>
     <span class="badge-unofficial">non officiel</span>
@@ -313,7 +327,7 @@
 
   <!-- Weekend banner (shown only on weekends) -->
   <div class="weekend-banner" id="weekend-banner" style="display:none;">
-    🌿 Week-end<br>
+    🌤️ Week-end<br>
     <span style="opacity:.5; font-size:10px;">Aucune heure de pointe — profitez-en !</span>
   </div>
 
