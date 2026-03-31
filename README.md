@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://camo.githubusercontent.com/3a2d0b9e7c4f8a1d65e2f3b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8/68747470733a2f2f726561646d652d74797069..."  alt="Claude Peak Monitor" />
-</p>
+![Claude Peak Monitor](https://readme-typing-svg.demolab.com?font=Fira+Code&size=28&pause=1000&color=C15F3C&background=000000&center=true&vCenter=true&width=700&lines=Claude+Peak+Monitor;🪨+Real-time+peak+hour+alerts;Never+miss+the+best+time+to+use+Claude.ai)
 
 ---
 
