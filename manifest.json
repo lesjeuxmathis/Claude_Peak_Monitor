@@ -1,16 +1,20 @@
 {
   "manifest_version": 3,
   "name": "Claude Peak Monitor",
-  "version": "1.4",
-  "description": "Alerte heures de pointe",
+  "version": "2.0",
+  "description": "Outil communautaire (non officiel) — alerte en temps réel lors des heures de pointe de Claude.ai",
   "author": "Lesjeuxmathis",
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon.png"
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
+    "16":  "icon.png",
+    "48":  "icon.png",
     "128": "icon.png"
   },
   "background": {
@@ -18,10 +22,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://claude.ai/chat/*", "https://claude.ai/new"],
+      "matches": ["https://claude.ai/*"],
       "js": ["content.js"],
       "run_at": "document_end"
     }
   ],
+  "permissions": ["alarms"],
   "host_permissions": ["https://claude.ai/*"]
 }

@@ -1,46 +1,34 @@
-const START_PEAK_UTC = 13;
-const END_PEAK_UTC   = 19;
+// background.js — Claude Peak Monitor v2.0
+// Outil communautaire non officiel — non affilié à Anthropic
+
+const PEAK_START_UTC = 13;
+const PEAK_END_UTC   = 19;
 
 function isWeekend() {
-    const day = new Date().getUTCDay();
-    return day === 0 || day === 6;
+  const day = new Date().getUTCDay();
+  return day === 0 || day === 6;
 }
 
 function isPeakHour() {
-    if (isWeekend()) return false;
-
-    const now = new Date();
-    const utcHour = now.getUTCHours();
-    
-    return utcHour >= START_PEAK_UTC && utcHour < END_PEAK_UTC;
+  if (isWeekend()) return false;
+  const hour = new Date().getUTCHours();
+  return hour >= PEAK_START_UTC && hour < PEAK_END_UTC;
 }
 
-function updateIcon() {
-    const isPeak = isPeakHour();
-
-    if (isPeak) {
-        chrome.action.setIcon({
-            path: {
-                "16":  "icon-peak.png",
-                "48":  "icon-peak.png",
-                "128": "icon-peak.png"
-            }
-        });
-    } else {
-        chrome.action.setIcon({
-            path: {
-                "16":  "icon.png",
-                "48":  "icon.png",
-                "128": "icon.png"
-            }
-        });
-    }
+function syncIcon() {
+  const icon = isPeakHour() ? 'icon-peak.png' : 'icon.png';
+  chrome.action.setIcon({
+    path: { '16': icon, '48': icon, '128': icon }
+  });
 }
 
-updateIcon();
-setInterval(updateIcon, 300000);
+// Sync on install/startup
+chrome.runtime.onInstalled.addListener(syncIcon);
+chrome.runtime.onStartup.addListener(syncIcon);
+syncIcon();
 
-chrome.alarms.create("updateIcon", { periodInMinutes: 1 });
+// Sync every minute via alarms (battery-efficient vs setInterval)
+chrome.alarms.create('syncIcon', { periodInMinutes: 1 });
 chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === "updateIcon") updateIcon();
+  if (alarm.name === 'syncIcon') syncIcon();
 });

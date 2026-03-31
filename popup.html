@@ -5,150 +5,353 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claude Peak Monitor</title>
   <style>
+    /* ── Reset ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens ────────────────────────────────────────────────── */
     :root {
-      --claude-orange: #C15F3C;
-      --claude-orange-light: #DA7756;
-      --bg: #F8F5F0;
-      --text: #2C2C2C;
-      --text-light: #6B6B6B;
-      --success: #4CAF7A;
-      --alert: #E76F51;
+      --bg:         #0D0B09;
+      --bg-card:    #151210;
+      --bg-alt:     #1C1814;
+      --border:     rgba(255, 255, 255, 0.07);
+      --text:       #F0E8DC;
+      --muted:      #6E6358;
+      --accent:     #E07B3C;
+      --peak:       #FF5230;
+      --peak-glow:  rgba(255, 82, 48, 0.22);
+      --peak-dim:   rgba(255, 82, 48, 0.1);
+      --calm:       #4ABF7E;
+      --calm-glow:  rgba(74, 191, 126, 0.18);
+      --calm-dim:   rgba(74, 191, 126, 0.08);
+      --mono: 'Menlo', 'Monaco', 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      --sans: 'Helvetica Neue', 'Arial', sans-serif;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1F1C18;
-        --text: #F4F1EA;
-        --text-light: #A89E8F;
-      }
-    }
-
+    /* ── Base ──────────────────────────────────────────────────── */
     body {
-      width: 290px;
-      margin: 0;
-      padding: 20px 18px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      width: 308px;
       background: var(--bg);
       color: var(--text);
-      text-align: center;
-      border-radius: 16px;
+      font-family: var(--sans);
       overflow: hidden;
     }
 
+    /* Subtle noise grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      padding: 15px 15px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── Header ────────────────────────────────────────────────── */
     .header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: rgba(224, 123, 60, 0.1);
+      border: 1px solid rgba(224, 123, 60, 0.28);
+      display: flex;
+      align-items: center;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 18px;
-      font-size: 1.35rem;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .logo-name {
+      font-family: var(--mono);
+      font-size: 10px;
       font-weight: 700;
-      color: var(--claude-orange);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    .status {
-      font-size: 1.15rem;
-      font-weight: 700;
-      padding: 14px 22px;
-      border-radius: 14px;
-      margin-bottom: 18px;
-      box-shadow: 0 4px 15px rgba(193, 95, 60, 0.15);
-      transition: all 0.4s ease;
+    .badge-unofficial {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 4px;
+      opacity: 0.7;
     }
 
-    .peak {
-      background: linear-gradient(135deg, var(--alert), #E76F51);
-      color: white;
-      box-shadow: 0 6px 20px rgba(231, 111, 81, 0.3);
-      animation: gentlePulse 2.5s infinite;
+    /* ── Weekend banner ────────────────────────────────────────── */
+    .weekend-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      line-height: 1.7;
     }
 
-    .normal {
-      background: linear-gradient(135deg, var(--success), #66D19F);
-      color: white;
-    }
-
-    #timer {
-      font-size: 1.85rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: var(--claude-orange);
-      margin: 12px 0 18px 0;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-
-    .progress-container {
-      height: 7px;
-      background: #EDE6DB;
-      border-radius: 9999px;
-      overflow: hidden;
-      margin: 16px 0;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--claude-orange), var(--claude-orange-light));
-      width: 0%;
-      transition: width 1s linear;
-      border-radius: 9999px;
-    }
-
-    .message {
-      font-size: 0.96rem;
-      line-height: 1.55;
-      color: var(--text-light);
-      background: rgba(193, 95, 60, 0.06);
-      padding: 14px 16px;
+    /* ── Status card ───────────────────────────────────────────── */
+    .status-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      border-left: 4px solid var(--claude-orange);
-      text-align: left;
-      margin: 10px 0;
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.5s ease, box-shadow 0.5s ease;
     }
 
+    .status-card.peak {
+      border-color: rgba(255, 82, 48, 0.22);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,82,48,0.06);
+    }
+
+    .status-card.calm {
+      border-color: rgba(74, 191, 126, 0.18);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.3), inset 0 1px 0 rgba(74,191,126,0.05);
+    }
+
+    /* ── Status row ────────────────────────────────────────────── */
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: all 0.45s ease;
+    }
+
+    .status-pill.peak {
+      background: var(--peak-dim);
+      color: var(--peak);
+      border: 1px solid rgba(255, 82, 48, 0.28);
+    }
+
+    .status-pill.calm {
+      background: var(--calm-dim);
+      color: var(--calm);
+      border: 1px solid rgba(74, 191, 126, 0.22);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-pill.peak .status-dot {
+      background: var(--peak);
+      box-shadow: 0 0 5px var(--peak);
+      animation: dot-blink 1.6s ease-in-out infinite;
+    }
+
+    .status-pill.calm .status-dot {
+      background: var(--calm);
+      box-shadow: 0 0 5px var(--calm);
+    }
+
+    @keyframes dot-blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.25; }
+    }
+
+    .utc-clock {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Timer block ───────────────────────────────────────────── */
+    .timer-block {
+      text-align: center;
+      padding: 2px 0;
+    }
+
+    .timer-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .timer-value {
+      font-family: var(--mono);
+      font-size: 2.35rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      transition: color 0.4s ease;
+    }
+
+    .timer-value.peak { color: var(--peak); }
+    .timer-value.calm { color: var(--calm); }
+
+    /* ── Progress bar ──────────────────────────────────────────── */
+    .progress-wrap {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--peak) 0%, #FF8C5A 100%);
+      border-radius: 999px;
+      transition: width 1s linear;
+    }
+
+    /* ── Info panel ────────────────────────────────────────────── */
+    .info-panel {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      transition: border-left-color 0.4s ease;
+    }
+
+    .info-panel.peak { border-left: 2px solid rgba(255, 82, 48, 0.45); }
+    .info-panel.calm { border-left: 2px solid rgba(74, 191, 126, 0.38); }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: rgba(240, 232, 220, 0.65);
+    }
+
+    .info-arrow {
+      color: var(--accent);
+      flex-shrink: 0;
+      font-size: 10px;
+      margin-top: 2px;
+      opacity: 0.8;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────── */
     .footer {
-      margin-top: 20px;
-      font-size: 0.78rem;
-      color: #9A8F7E;
-      font-weight: 500;
-      line-height: 1.4;
+      padding-top: 1px;
+      text-align: center;
     }
 
-    @keyframes gentlePulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.015); }
+    .footer-text {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      line-height: 1.6;
+      opacity: 0.75;
     }
 
-    hr {
-      border: none;
-      height: 1px;
-      background: linear-gradient(to right, transparent, #D4C9B5, transparent);
-      margin: 18px 0;
+    .footer-sep {
+      opacity: 0.3;
+      margin: 0 4px;
     }
   </style>
 </head>
 <body>
+<div class="wrap">
+
+  <!-- Header -->
   <div class="header">
-    <span style="font-size:1.6rem;">🪨</span>
-    Claude Peak Monitor
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-name">Peak Monitor</span>
+    </div>
+    <span class="badge-unofficial">non officiel</span>
   </div>
 
-  <div id="status-box" class="status">Chargement...</div>
-  <div id="timer">00h 00m 00s</div>
-
-  <div class="progress-container" id="progress-container" style="display: none;">
-    <div class="progress-bar" id="progress-bar"></div>
+  <!-- Weekend banner (shown only on weekends) -->
+  <div class="weekend-banner" id="weekend-banner" style="display:none;">
+    🌿 Week-end<br>
+    <span style="opacity:.5; font-size:10px;">Aucune heure de pointe — profitez-en !</span>
   </div>
 
-  <div id="message" class="message"></div>
+  <!-- Status card (hidden on weekends) -->
+  <div class="status-card" id="status-card">
 
-  <hr>
+    <div class="status-row">
+      <div class="status-pill" id="status-pill">
+        <span class="status-dot"></span>
+        <span id="status-label">Chargement…</span>
+      </div>
+      <span class="utc-clock" id="utc-clock">--:--:-- UTC</span>
+    </div>
 
-  <div class="footer" id="footer">
-    Heures de pointe • 13h – 19h GMT<br>
-    Ralentissements & bugs plus fréquents
+    <div class="timer-block">
+      <div class="timer-label" id="timer-label">—</div>
+      <div class="timer-value" id="timer-value">--h --m --s</div>
+    </div>
+
+    <div class="progress-wrap" id="progress-wrap" style="display:none;">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
   </div>
 
-  <script src="popup.js"></script>
+  <!-- Info panel (hidden on weekends) -->
+  <div class="info-panel" id="info-panel"></div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-text" id="footer-text">
+      Heures de pointe • 13h–19h UTC
+      <span class="footer-sep">·</span>
+      Outil communautaire
+    </div>
+  </div>
+
+</div>
+<script src="popup.js"></script>
 </body>
 </html>
