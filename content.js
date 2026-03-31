@@ -1,7 +1,16 @@
+// content.js - Version finale recommandée
+
 const START_PEAK_UTC = 13;
 const END_PEAK_UTC   = 19;
 
+function isWeekend() {
+    const day = new Date().getUTCDay(); // 0 = dimanche, 6 = samedi
+    return day === 0 || day === 6;
+}
+
 function isPeakHour() {
+    if (isWeekend()) return false;   // Rien les week-ends
+
     const hour = new Date().getUTCHours();
     return hour >= START_PEAK_UTC && hour < END_PEAK_UTC;
 }
@@ -31,6 +40,8 @@ function createWarningBadge() {
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: default;
         user-select: none;
+        opacity: 0;
+        transform: translateY(-10px);
     `;
 
     badge.innerHTML = `
@@ -38,7 +49,7 @@ function createWarningBadge() {
         <span style="font-size:11px; opacity:0.9;">(ralentissements & bugs fréquents)</span>
     `;
 
-    // Bouton pour masquer temporairement (30 minutes)
+    // Bouton fermer
     const closeBtn = document.createElement('span');
     closeBtn.textContent = '✕';
     closeBtn.style.cssText = `
@@ -57,14 +68,14 @@ function createWarningBadge() {
         badge.style.transform = 'translateY(-10px)';
         setTimeout(() => badge.remove(), 400);
         
-        // Optionnel : on peut stocker dans localStorage pour masquer plus longtemps
+        // Masquer pendant 30 minutes
         localStorage.setItem('claude_peak_badge_hidden_until', Date.now() + 30 * 60 * 1000);
     };
 
     badge.appendChild(closeBtn);
     document.body.appendChild(badge);
 
-    // Petite animation d’entrée
+    // Animation d'apparition
     setTimeout(() => {
         badge.style.opacity = '1';
         badge.style.transform = 'translateY(0)';
@@ -72,9 +83,10 @@ function createWarningBadge() {
 }
 
 function checkAndShowBadge() {
+    // Respecter le masquage temporaire
     const hiddenUntil = localStorage.getItem('claude_peak_badge_hidden_until');
     if (hiddenUntil && Date.now() < parseInt(hiddenUntil)) {
-        return; // On respecte le masquage temporaire
+        return;
     }
 
     if (isPeakHour()) {
@@ -85,11 +97,11 @@ function checkAndShowBadge() {
     }
 }
 
-// Vérification toutes les 25 secondes + immédiatement
+// Vérification régulière + au chargement
 setInterval(checkAndShowBadge, 25000);
 checkAndShowBadge();
 
-// Réagir si l’utilisateur change d’onglet ou revient sur la page
+// Quand l'utilisateur revient sur l'onglet
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) checkAndShowBadge();
 });

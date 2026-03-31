@@ -1,22 +1,18 @@
 const START_PEAK_UTC = 13;
 const END_PEAK_UTC   = 19;
 
+function isWeekend() {
+    const day = new Date().getUTCDay();
+    return day === 0 || day === 6;
+}
+
 function isPeakHour() {
+    if (isWeekend()) return false;
+
     const now = new Date();
+    const utcHour = now.getUTCHours();
     
-    const localHour = now.getHours();        
-    const utcHour   = now.getUTCHours();     
-
-    const offset = localHour - utcHour;
-    
-    let peakStartLocal = (START_PEAK_UTC + offset + 24) % 24;
-    let peakEndLocal   = (END_PEAK_UTC + offset + 24) % 24;
-
-    if (peakEndLocal < peakStartLocal) {
-        return localHour >= peakStartLocal || localHour < peakEndLocal;
-    }
-
-    return localHour >= peakStartLocal && localHour < peakEndLocal;
+    return utcHour >= START_PEAK_UTC && utcHour < END_PEAK_UTC;
 }
 
 function updateIcon() {
