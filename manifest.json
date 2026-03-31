@@ -2,16 +2,19 @@
   "manifest_version": 3,
   "name": "Claude Peak Monitor",
   "version": "1.4",
-  "description": "Alerte heures de pointe + avertissement direct sur claude.ai",
+  "description": "Alerte heures de pointe",
   "author": "Lesjeuxmathis",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Claude Peak Monitor"
+    "default_icon": "icon.png"
   },
   "icons": {
     "16": "icon.png",
     "48": "icon.png",
     "128": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -20,6 +23,5 @@
       "run_at": "document_end"
     }
   ],
-  "host_permissions": ["https://claude.ai/*"],
-  "permissions": []
+  "host_permissions": ["https://claude.ai/*"]
 }
