@@ -9,6 +9,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Mode clair (défaut) ─────────────────────────────────────────────── */
     :root {
       --bg:          #FBF5ED;
       --bg-card:     #FFFFFF;
@@ -23,10 +24,31 @@
       --peak-dim:    rgba(194, 74, 10, 0.09);
       --calm:        #4D7830;
       --calm-dim:    rgba(77, 120, 48, 0.09);
-      --shadow-card: 0 3px 20px rgba(180, 90, 10, 0.09), 0 1px 4px rgba(180, 90, 10, 0.06);
+      --shadow-card: 0 3px 20px rgba(180, 90, 10, 0.09),  0 1px 4px rgba(180, 90, 10, 0.06);
       --shadow-soft: 0 2px 12px rgba(180, 100, 20, 0.08), 0 1px 3px rgba(180, 100, 20, 0.05);
-      --mono: 'JetBrains Mono', 'Menlo', 'Courier New', monospace;
+      --mono:  'JetBrains Mono', 'Menlo', 'Courier New', monospace;
       --serif: 'Lora', Georgia, serif;
+    }
+
+    /* ── Mode sombre système ─────────────────────────────────────────────── */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:          #1C1914;
+        --bg-card:     #252118;
+        --bg-alt:      #1F1C14;
+        --border:      rgba(195, 105, 30, 0.18);
+        --border-card: rgba(195, 105, 30, 0.22);
+        --text:        #E8D5B0;
+        --text-soft:   #C4A870;
+        --muted:       #8A6538;
+        --accent:      #D4701A;
+        --peak:        #E06030;
+        --peak-dim:    rgba(224, 96, 48, 0.13);
+        --calm:        #5A9038;
+        --calm-dim:    rgba(90, 144, 56, 0.13);
+        --shadow-card: 0 3px 20px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25);
+        --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.20);
+      }
     }
 
     body {
@@ -35,6 +57,7 @@
       color: var(--text);
       font-family: var(--serif);
       overflow: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     body::before {
@@ -42,11 +65,20 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse 240% 150% at 50% -10%, rgba(255, 175, 70, 0.20) 0%, transparent 55%),
-        radial-gradient(ellipse 180% 120% at 0% 80%,   rgba(255, 135, 45, 0.11) 0%, transparent 55%),
-        radial-gradient(ellipse 150% 100% at 100% 100%,rgba(240, 155, 70, 0.09) 0%, transparent 50%);
+        radial-gradient(ellipse 240% 150% at 50% -10%,  rgba(255, 175, 70, 0.20) 0%, transparent 55%),
+        radial-gradient(ellipse 180% 120% at 0%   80%,  rgba(255, 135, 45, 0.11) 0%, transparent 55%),
+        radial-gradient(ellipse 150% 100% at 100% 100%, rgba(240, 155, 70, 0.09) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body::before {
+        background:
+          radial-gradient(ellipse 240% 150% at 50% -10%,  rgba(180, 100, 30, 0.18) 0%, transparent 55%),
+          radial-gradient(ellipse 180% 120% at 0%   80%,  rgba(150,  75, 15, 0.10) 0%, transparent 55%),
+          radial-gradient(ellipse 150% 100% at 100% 100%, rgba(140,  85, 25, 0.08) 0%, transparent 50%);
+      }
     }
 
     body::after {
@@ -67,6 +99,8 @@
       flex-direction: column;
       gap: 9px;
     }
+
+    /* ── Header ──────────────────────────────────────────────────────────── */
 
     .header {
       display: flex;
@@ -113,6 +147,8 @@
       border-radius: 99px;
     }
 
+    /* ── Weekend banner ──────────────────────────────────────────────────── */
+
     .weekend-banner {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
@@ -126,6 +162,8 @@
       line-height: 1.8;
       box-shadow: var(--shadow-card);
     }
+
+    /* ── Status card ─────────────────────────────────────────────────────── */
 
     .status-card {
       background: var(--bg-card);
@@ -148,6 +186,19 @@
       border-color: rgba(77, 120, 48, 0.22);
       box-shadow: var(--shadow-card), inset 0 1px 0 rgba(100, 160, 70, 0.08);
     }
+
+    @media (prefers-color-scheme: dark) {
+      .status-card.peak {
+        border-color: rgba(224, 96, 48, 0.28);
+        box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 150, 70, 0.10);
+      }
+      .status-card.calm {
+        border-color: rgba(90, 144, 56, 0.26);
+        box-shadow: var(--shadow-card), inset 0 1px 0 rgba(110, 170, 80, 0.07);
+      }
+    }
+
+    /* ── Status row ──────────────────────────────────────────────────────── */
 
     .status-row {
       display: flex;
@@ -200,7 +251,7 @@
     }
 
     @keyframes dot-blink {
-      0%, 100% { opacity: 1; }
+      0%, 100% { opacity: 1;   }
       50%       { opacity: 0.2; }
     }
 
@@ -210,6 +261,8 @@
       color: var(--muted);
       letter-spacing: 0.04em;
     }
+
+    /* ── Timer ───────────────────────────────────────────────────────────── */
 
     .timer-block {
       text-align: center;
@@ -245,11 +298,22 @@
       text-shadow: 0 0 20px rgba(77, 120, 48, 0.16);
     }
 
+    @media (prefers-color-scheme: dark) {
+      .timer-value.peak { text-shadow: 0 0 24px rgba(224, 96, 48, 0.28); }
+      .timer-value.calm { text-shadow: 0 0 24px rgba(90, 144, 56, 0.24); }
+    }
+
+    /* ── Progress bar ────────────────────────────────────────────────────── */
+
     .progress-wrap {
       height: 4px;
       background: rgba(195, 105, 30, 0.10);
       border-radius: 999px;
       overflow: hidden;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .progress-wrap { background: rgba(195, 105, 30, 0.14); }
     }
 
     .progress-fill {
@@ -259,6 +323,8 @@
       border-radius: 999px;
       transition: width 1s linear;
     }
+
+    /* ── Info panel ──────────────────────────────────────────────────────── */
 
     .info-panel {
       background: var(--bg-alt);
@@ -272,8 +338,14 @@
       transition: border-left-color 0.4s ease;
     }
 
-    .info-panel.peak { border-left: 2.5px solid rgba(194, 74, 10, 0.40); }
-    .info-panel.calm { border-left: 2.5px solid rgba(77, 120, 48, 0.38); }
+    .info-panel.peak { border-left: 2.5px solid rgba(194, 74,  10, 0.40); }
+    .info-panel.calm { border-left: 2.5px solid rgba(77,  120, 48, 0.38); }
+
+    @media (prefers-color-scheme: dark) {
+      .info-panel { border-color: rgba(195, 105, 30, 0.20); }
+      .info-panel.peak { border-left-color: rgba(224, 96, 48, 0.50); }
+      .info-panel.calm { border-left-color: rgba(90, 144, 56, 0.46); }
+    }
 
     .info-item {
       display: flex;
@@ -292,6 +364,8 @@
       margin-top: 3px;
       opacity: 0.70;
     }
+
+    /* ── Footer ──────────────────────────────────────────────────────────── */
 
     .footer {
       padding-top: 2px;
@@ -325,13 +399,13 @@
     <span class="badge-unofficial">non officiel</span>
   </div>
 
-  <!-- Weekend banner (shown only on weekends) -->
+  <!-- Weekend banner (affiché uniquement le week-end) -->
   <div class="weekend-banner" id="weekend-banner" style="display:none;">
     🌤️ Week-end<br>
     <span style="opacity:.5; font-size:10px;">Aucune heure de pointe — profitez-en !</span>
   </div>
 
-  <!-- Status card (hidden on weekends) -->
+  <!-- Status card (masqué le week-end) -->
   <div class="status-card" id="status-card">
 
     <div class="status-row">
@@ -353,7 +427,7 @@
 
   </div>
 
-  <!-- Info panel (hidden on weekends) -->
+  <!-- Info panel (masqué le week-end) -->
   <div class="info-panel" id="info-panel"></div>
 
   <!-- Footer -->

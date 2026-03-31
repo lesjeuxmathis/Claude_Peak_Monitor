@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Claude Peak Monitor",
-  "version": "2.0",
+  "version": "3.0",
   "description": "Outil communautaire (non officiel) — alerte en temps réel lors des heures de pointe de Claude.ai",
   "author": "Lesjeuxmathis",
   "action": {
